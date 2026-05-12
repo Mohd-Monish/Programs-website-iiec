@@ -2384,31 +2384,65 @@
     </div>
   </section>
   <!-- Setup Modal (Hidden by default) -->
-  <div id="setupModal" style="display: none; position: fixed; inset: 0; background: rgba(11, 31, 91, 0.85); z-index: 9998; backdrop-filter: blur(4px);">
+  <!-- Submission Status Modal -->
+  <div id="statusModal" style="display: none; position: fixed; inset: 0; background: rgba(11, 31, 91, 0.85); z-index: 9997; backdrop-filter: blur(4px);">
     <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border-radius: 20px; padding: 40px; max-width: 480px; width: 90%; box-shadow: 0 25px 60px rgba(11, 31, 91, 0.2);">
-      <div style="text-align: center; margin-bottom: 28px;">
-        <div style="font-size: 48px; margin-bottom: 14px;">⚙️</div>
-        <h2 style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 24px; color: #0b1f5b; margin-bottom: 8px;">One-Time Setup Required</h2>
-        <p style="color: #5b6580; font-size: 14px;">Configure your Google Apps Script URL to enable form submissions</p>
-      </div>
 
-      <div id="setupContent">
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; font-size: 12px; font-weight: 600; color: #0b1f5b; margin-bottom: 8px; letter-spacing: 0.3px;">Google Apps Script Web App URL</label>
-          <input id="setupUrlInput" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="width: 100%; padding: 12px 14px; border: 1.5px solid #e6e9f5; border-radius: 10px; font-family: monospace; font-size: 12px; box-sizing: border-box; transition: 0.25s;" />
-          <p style="font-size: 11px; color: #5b6580; margin-top: 6px;">📋 <a href="https://github.com/Mohd-Monish/Programs-website-iiec" target="_blank" style="color: #1b3aa3; text-decoration: underline;">Need help? See setup guide</a></p>
+      <!-- Progress Steps -->
+      <div style="margin-bottom: 32px;">
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px;">
+          <!-- Step 1: Submitting Response -->
+          <div style="display: flex; align-items: center; flex: 1;">
+            <div id="step1-icon" style="width: 36px; height: 36px; border-radius: 50%; background: #ffc20e; display: flex; align-items: center; justify-content: center; color: #0b1f5b; font-weight: 700; font-size: 14px; flex-shrink: 0;">1</div>
+            <div style="margin-left: 12px; flex: 1;">
+              <p id="step1-text" style="font-size: 13px; font-weight: 600; color: #0b1f5b; margin: 0;">Submitting Response</p>
+              <p id="step1-status" style="font-size: 11px; color: #5b6580; margin: 2px 0 0;">Sending your data...</p>
+            </div>
+          </div>
         </div>
 
-        <button id="setupBtn" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #ffc20e 0%, #ffd84d 100%); color: #0b1f5b; border: none; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.3s; box-shadow: 0 8px 20px rgba(255, 194, 14, 0.4);">Save Configuration</button>
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px;">
+          <!-- Step 2: Uploading Resume -->
+          <div style="display: flex; align-items: center; flex: 1;">
+            <div id="step2-icon" style="width: 36px; height: 36px; border-radius: 50%; background: #e6e9f5; display: flex; align-items: center; justify-content: center; color: #5b6580; font-weight: 700; font-size: 14px; flex-shrink: 0;">2</div>
+            <div style="margin-left: 12px; flex: 1;">
+              <p id="step2-text" style="font-size: 13px; font-weight: 600; color: #5b6580; margin: 0;">Uploading Resume</p>
+              <p id="step2-status" style="font-size: 11px; color: #5b6580; margin: 2px 0 0;">Pending...</p>
+            </div>
+          </div>
+        </div>
 
-        <button id="skipBtn" style="width: 100%; padding: 12px; margin-top: 10px; background: transparent; color: #5b6580; border: 1.5px solid #e6e9f5; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.3s;">Skip for Now</button>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <!-- Step 3: Processing -->
+          <div style="display: flex; align-items: center; flex: 1;">
+            <div id="step3-icon" style="width: 36px; height: 36px; border-radius: 50%; background: #e6e9f5; display: flex; align-items: center; justify-content: center; color: #5b6580; font-weight: 700; font-size: 14px; flex-shrink: 0;">3</div>
+            <div style="margin-left: 12px; flex: 1;">
+              <p id="step3-text" style="font-size: 13px; font-weight: 600; color: #5b6580; margin: 0;">Finalizing</p>
+              <p id="step3-status" style="font-size: 11px; color: #5b6580; margin: 2px 0 0;">Pending...</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div id="setupSuccess" style="display: none; text-align: center;">
-        <div style="font-size: 48px; margin-bottom: 14px;">✓</div>
-        <p style="color: #0b1f5b; font-weight: 600; margin-bottom: 10px;">Setup Complete!</p>
-        <p style="color: #5b6580; font-size: 14px;">Your form is now ready. Responses will be saved to Google Sheets.</p>
+      <!-- Completion Message (Hidden initially) -->
+      <div id="statusSuccess" style="display: none; text-align: center;">
+        <div style="font-size: 64px; margin-bottom: 16px; animation: scaleIn 0.6s ease-out;">✓</div>
+        <h3 style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 22px; color: #0b1f5b; margin-bottom: 8px;">Submitted Successfully!</h3>
+        <p style="color: #5b6580; font-size: 14px; margin-bottom: 20px;">Your application has been received. We'll review it shortly.</p>
+        <p style="color: #22c55e; font-size: 13px; font-weight: 600;">✓ Data saved on our Database<br>✓ Resume uploaded on our Database</p>
       </div>
+
+      <style>
+        @keyframes scaleIn {
+          from { transform: scale(0); }
+          to { transform: scale(1); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .step-active { background: #ffc20e !important; color: #0b1f5b !important; animation: spin 1s linear infinite; }
+      </style>
     </div>
   </div>
 
@@ -2614,8 +2648,8 @@
     // ╚════════════════════════════════════════════════════════════════════════════╝
 
     // ── Configuration Constants ──────────────────────────────────────────────────
-    const STORAGE_KEY = "IIEC_APPS_SCRIPT_URL";
-    const SETUP_FLAG = "IIEC_SETUP_SHOWN";
+    // 🔧 UPDATE THIS WITH YOUR APPS SCRIPT URL
+    window.APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw_DK4nlYx9lsZJdmllnBpLvcXAk2QYrdrbzM-qlrJ9Scu3YNfkXfiU8zuYhtjA-9n0/exec";
 
     // ── Auto-Setup on Page Load ──────────────────────────────────────────────────
     window.addEventListener('load', function () {
@@ -2673,34 +2707,6 @@
         hideSetupModal();
       }, 2000);
     }
-
-    // ── Setup Modal Event Listeners ──────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', function () {
-      var setupBtn = document.getElementById('setupBtn');
-      var skipBtn = document.getElementById('skipBtn');
-      var setupInput = document.getElementById('setupUrlInput');
-
-      if (setupBtn) {
-        setupBtn.addEventListener('click', saveSetupConfiguration);
-      }
-
-      if (skipBtn) {
-        skipBtn.addEventListener('click', hideSetupModal);
-      }
-
-      // Allow Enter key to submit
-      if (setupInput) {
-        setupInput.addEventListener('keypress', function (e) {
-          if (e.key === 'Enter') {
-            saveSetupConfiguration();
-          }
-        });
-      }
-    });
-
-    // ── Load stored URL on startup ───────────────────────────────────────────────
-    var storedUrl = localStorage.getItem(STORAGE_KEY);
-    window.APPS_SCRIPT_URL = storedUrl || "NOT_CONFIGURED";
 
     // ── Manual setup function (for advanced users) ──────────────────────────────
     function manualSetupFormBackend() {
@@ -2768,16 +2774,75 @@
       });
     }
 
-    // ── MAIN FORM SUBMISSION ─────────────────────────────────────────────────────
+    // ── Status Modal Functions ──────────────────────────────────────────────────
+    function showStatusModal() {
+      var modal = document.getElementById('statusModal');
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      // Reset to initial state
+      document.getElementById('statusSuccess').style.display = 'none';
+      document.getElementById('step1-icon').className = 'step-active';
+      document.getElementById('step1-text').style.color = '#0b1f5b';
+      document.getElementById('step1-status').style.color = '#0b1f5b';
+      document.getElementById('step2-icon').style.background = '#e6e9f5';
+      document.getElementById('step2-icon').style.color = '#5b6580';
+      document.getElementById('step3-icon').style.background = '#e6e9f5';
+      document.getElementById('step3-icon').style.color = '#5b6580';
+    }
+
+    function hideStatusModal() {
+      var modal = document.getElementById('statusModal');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    function updateStatus(step, status) {
+      var stepNumber = 'step' + step;
+      document.getElementById(stepNumber + '-status').textContent = status;
+    }
+
+    function completeStep(step) {
+      var stepNumber = 'step' + step;
+      var icon = document.getElementById(stepNumber + '-icon');
+      var text = document.getElementById(stepNumber + '-text');
+
+      // Remove spinning animation and show checkmark
+      icon.className = '';
+      icon.style.background = '#22c55e';
+      icon.style.color = '#fff';
+      icon.innerHTML = '✓';
+      text.style.color = '#0b1f5b';
+
+      // Activate next step if exists
+      if (step < 3) {
+        var nextStep = step + 1;
+        var nextIcon = document.getElementById('step' + nextStep + '-icon');
+        nextIcon.className = 'step-active';
+        nextIcon.style.background = '#ffc20e';
+        nextIcon.style.color = '#0b1f5b';
+      }
+    }
+
+    function showSuccess() {
+      document.getElementById('statusSuccess').style.display = 'block';
+      // Hide progress steps
+      document.querySelector('[style*="margin-bottom: 32px"]').style.display = 'none';
+    }
+
+    // ── MAIN FORM SUBMISSION WITH STATUS ─────────────────────────────────────────
     document.getElementById('applyForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       var b = e.target.querySelector('button[type=submit]');
       var orig = b.innerHTML;
-      b.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...';
       b.disabled = true;
 
       try {
-        // Collect form data
+        // Show status modal
+        showStatusModal();
+
+        // ── STEP 1: Collect and Submit Response ──────────────────────────────────
+        updateStatus(1, 'Collecting form data...');
+
         var formData = new FormData(this);
         var data = {
           name: formData.get('name'),
@@ -2792,42 +2857,66 @@
           referral: formData.get('referral')
         };
 
+        await new Promise(resolve => setTimeout(resolve, 800)); // Simulate brief processing
+        updateStatus(1, 'Validating data...');
+
         // ── Check if backend URL is configured ──────────────────────────────────
         if (!window.APPS_SCRIPT_URL || window.APPS_SCRIPT_URL === "NOT_CONFIGURED") {
           throw new Error("Backend not configured. Setup modal will appear shortly.");
         }
 
-        // ── Handle resume file (optional) ──────────────────────────────────────────
+        await new Promise(resolve => setTimeout(resolve, 600));
+        updateStatus(1, 'Sending to server...');
+
+        // ── STEP 2: Handle Resume File ───────────────────────────────────────────
+        completeStep(1);
+        updateStatus(2, 'Preparing resume...');
+
         var resumeFile = document.getElementById('resume').files[0];
         if (resumeFile) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          updateStatus(2, 'Encoding file...');
           data.resumeBase64 = await fileToBase64(resumeFile);
           data.resumeFileName = resumeFile.name;
           data.resumeMime = resumeFile.type || "application/octet-stream";
+          updateStatus(2, 'Resume ready...');
+        } else {
+          updateStatus(2, 'No resume attached');
         }
 
-        // ── Send to backend ────────────────────────────────────────────────────────
+        await new Promise(resolve => setTimeout(resolve, 600));
+        completeStep(2);
+
+        // ── STEP 3: Send to Backend and Finalize ────────────────────────────────
+        updateStatus(3, 'Processing submission...');
+
         var response = await fetch(window.APPS_SCRIPT_URL, {
           method: 'POST',
           body: JSON.stringify(data),
           mode: 'no-cors'
         });
 
-        // ── Success response ───────────────────────────────────────────────────────
-        b.innerHTML = '<i class="fa-solid fa-check"></i> Submitted Successfully';
-        b.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
-        b.style.color = '#fff';
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        updateStatus(3, 'Finalizing...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-        setTimeout(function () {
-          e.target.reset();
-          fn.textContent = 'Choose file (PDF, DOC)';
-          b.innerHTML = orig;
-          b.style.background = '';
-          b.style.color = '';
-          b.disabled = false
-        }, 2400);
+        completeStep(3);
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // ── Show Success ─────────────────────────────────────────────────────────
+        showSuccess();
+
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Auto-close and reset
+        hideStatusModal();
+        e.target.reset();
+        document.getElementById('fileName').textContent = 'Choose file (PDF, DOC)';
+        b.disabled = false;
 
       } catch (error) {
         console.error('Submission Error:', error);
+        hideStatusModal();
 
         // If not configured, show setup modal
         if (window.APPS_SCRIPT_URL === "NOT_CONFIGURED") {
@@ -2835,18 +2924,10 @@
             showSetupModal();
           }, 500);
         } else {
-          b.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Error Submitting';
-          b.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
-          b.style.color = '#fff';
-          alert('Error: ' + error.message);
+          alert('❌ Error: ' + error.message);
         }
 
-        setTimeout(function () {
-          b.innerHTML = orig;
-          b.style.background = '';
-          b.style.color = '';
-          b.disabled = false
-        }, 2400);
+        b.disabled = false;
       }
     });
 
