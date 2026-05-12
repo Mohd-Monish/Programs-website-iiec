@@ -2579,14 +2579,72 @@
   <a class="wa-btn" href="https://wa.me/919466605579" target="_blank" rel="noopener"><i
       class="fa-brands fa-whatsapp"></i></a>
   <script>
-    window.addEventListener('load', function () { setTimeout(function () { document.getElementById('loader').classList.add('hide') }, 1400) });
+    // ╔════════════════════════════════════════════════════════════════════════════╗
+    // ║         IIEC MARKETING INTERNSHIP — FRONTEND FORM HANDLER                 ║
+    // ║              Collects form data + resume, submits to backend               ║
+    // ╚════════════════════════════════════════════════════════════════════════════╝
+
+    // ── Configuration ────────────────────────────────────────────────────────────
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw_DK4nlYx9lsZJdmllnBpLvcXAk2QYrdrbzM-qlrJ9Scu3YNfkXfiU8zuYhtjA-9n0/exec";
+    // Replace with your Google Apps Script Web App URL from Code.gs deployment
+
+    // Auto-setup function — Run once to configure URLs
+    function setupFormBackend() {
+      const scriptUrl = prompt(
+        "Enter your Google Apps Script Web App URL:\n(e.g. https://script.google.com/macros/s/...)\n\n" +
+        "Don't have it yet? Deploy Code.gs first.",
+        APPS_SCRIPT_URL
+      );
+
+      if (scriptUrl && scriptUrl !== "YOUR_APPS_SCRIPT_URL_HERE") {
+        // Store in localStorage for persistence
+        localStorage.setItem("APPS_SCRIPT_URL", scriptUrl);
+        alert("✓ Setup complete! Form will now submit to:\n" + scriptUrl);
+        location.reload();
+      } else if (scriptUrl) {
+        alert("⚠ Please enter a valid Apps Script URL");
+      }
+    }
+
+    // Load URL from localStorage if available
+    var STORED_URL = localStorage.getItem("APPS_SCRIPT_URL");
+    if (STORED_URL) {
+      window.APPS_SCRIPT_URL = STORED_URL;
+    }
+
+    // ── Helper: Convert file to Base64 ───────────────────────────────────────────
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(",")[1]); // Get base64 part only
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ── Page initialization ──────────────────────────────────────────────────────
+    window.addEventListener('load', function () {
+      setTimeout(function () { document.getElementById('loader').classList.add('hide') }, 1400);
+
+      // Check if setup is needed
+      if (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
+        console.warn("⚠ Form backend not configured. Call setupFormBackend() or set APPS_SCRIPT_URL");
+      }
+    });
+
     var nav = document.getElementById('nav');
     window.addEventListener('scroll', function () { nav.classList.toggle('scrolled', window.scrollY > 20) });
     var mt = document.getElementById('menuToggle'), nl = document.getElementById('navLinks');
     mt.addEventListener('click', function () { nl.classList.toggle('open') });
     nl.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { nl.classList.remove('open') }) });
-    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } }) }, { threshold: .12 });
+
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
+      })
+    }, { threshold: .12 });
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el) });
+
     var counted = new WeakSet();
     var co = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
@@ -2600,28 +2658,104 @@
       })
     }, { threshold: .4 });
     document.querySelectorAll('[data-count]').forEach(function (el) { co.observe(el) });
+
     document.querySelectorAll('.faq-item').forEach(function (item) {
       item.querySelector('.faq-q').addEventListener('click', function () {
         var open = item.classList.contains('open');
-        document.querySelectorAll('.faq-item').forEach(function (i) { i.classList.remove('open'); i.querySelector('.faq-a').style.maxHeight = null });
-        if (!open) { item.classList.add('open'); var a = item.querySelector('.faq-a'); a.style.maxHeight = a.scrollHeight + 'px' }
+        document.querySelectorAll('.faq-item').forEach(function (i) {
+          i.classList.remove('open');
+          i.querySelector('.faq-a').style.maxHeight = null
+        });
+        if (!open) {
+          item.classList.add('open');
+          var a = item.querySelector('.faq-a');
+          a.style.maxHeight = a.scrollHeight + 'px'
+        }
       });
     });
+
     var resume = document.getElementById('resume'), fn = document.getElementById('fileName');
-    if (resume) resume.addEventListener('change', function (e) { fn.textContent = e.target.files[0] ? e.target.files[0].name : 'Choose file (PDF, DOC)' });
-    document.getElementById('applyForm').addEventListener('submit', function (e) {
+    if (resume) {
+      resume.addEventListener('change', function (e) {
+        fn.textContent = e.target.files[0] ? e.target.files[0].name : 'Choose file (PDF, DOC)'
+      });
+    }
+
+    // ── MAIN FORM SUBMISSION ─────────────────────────────────────────────────────
+    document.getElementById('applyForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       var b = e.target.querySelector('button[type=submit]');
       var orig = b.innerHTML;
       b.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...';
       b.disabled = true;
-      setTimeout(function () {
+
+      try {
+        // Collect form data
+        var formData = new FormData(this);
+        var data = {
+          name: formData.get('name'),
+          phone: formData.get('phone'),
+          email: formData.get('email'),
+          enrollment: formData.get('enrollment'),
+          dept: formData.get('dept'),
+          course: formData.get('course'),
+          year: formData.get('year'),
+          wa: formData.get('wa'),
+          why: formData.get('why'),
+          referral: formData.get('referral')
+        };
+
+        // ── Check if backend URL is configured ──────────────────────────────────
+        if (!window.APPS_SCRIPT_URL || window.APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
+          throw new Error("Form backend not configured. Please call setupFormBackend() first.");
+        }
+
+        // ── Handle resume file (optional) ──────────────────────────────────────────
+        var resumeFile = document.getElementById('resume').files[0];
+        if (resumeFile) {
+          data.resumeBase64 = await fileToBase64(resumeFile);
+          data.resumeFileName = resumeFile.name;
+          data.resumeMime = resumeFile.type || "application/octet-stream";
+        }
+
+        // ── Send to backend ────────────────────────────────────────────────────────
+        var response = await fetch(window.APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(data),
+          mode: 'no-cors'
+        });
+
+        // ── Success response ───────────────────────────────────────────────────────
         b.innerHTML = '<i class="fa-solid fa-check"></i> Submitted Successfully';
         b.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
         b.style.color = '#fff';
-        setTimeout(function () { e.target.reset(); fn.textContent = 'Choose file (PDF, DOC)'; b.innerHTML = orig; b.style.background = ''; b.style.color = ''; b.disabled = false }, 2400);
-      }, 1400);
+
+        setTimeout(function () {
+          e.target.reset();
+          fn.textContent = 'Choose file (PDF, DOC)';
+          b.innerHTML = orig;
+          b.style.background = '';
+          b.style.color = '';
+          b.disabled = false
+        }, 2400);
+
+      } catch (error) {
+        console.error('Submission Error:', error);
+        b.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Error Submitting';
+        b.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
+        b.style.color = '#fff';
+        alert('Error: ' + error.message);
+
+        setTimeout(function () {
+          b.innerHTML = orig;
+          b.style.background = '';
+          b.style.color = '';
+          b.disabled = false
+        }, 2400);
+      }
     });
+
+    // ── Tilt effect on benefit cards ─────────────────────────────────────────────
     document.querySelectorAll('.tilt').forEach(function (card) {
       card.addEventListener('mousemove', function (e) {
         var r = card.getBoundingClientRect();
@@ -2634,14 +2768,17 @@
       });
       card.addEventListener('mouseleave', function () { card.style.transform = '' });
     });
+
     var cg = document.getElementById('cursorGlow');
     window.addEventListener('mousemove', function (e) { cg.style.left = e.clientX + 'px'; cg.style.top = e.clientY + 'px' });
+
     var orbs = document.querySelectorAll('.orb');
     window.addEventListener('mousemove', function (e) {
       var x = (e.clientX / window.innerWidth - .5) * 30;
       var y = (e.clientY / window.innerHeight - .5) * 30;
       orbs.forEach(function (o, i) { var m = (i + 1) * .6; o.style.transform = 'translate(' + (x * m) + 'px,' + (y * m) + 'px)' });
     });
+
     document.querySelectorAll('.btn-primary,.btn-submit').forEach(function (b) {
       b.addEventListener('mousemove', function (e) {
         var r = b.getBoundingClientRect();
