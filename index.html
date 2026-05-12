@@ -2129,6 +2129,10 @@
         font-size: 14px;
         gap: 10px
       }
+
+      .qr-block {
+        display: none
+      }
     }
   </style>
 </head>
@@ -2195,7 +2199,7 @@
       <div class="hero-visual">
         <div class="hero-img-wrap">
           <img
-            src="https://images.unsplash.com/photo-1758873269035-aae0e1fd3422?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080&q=80"
+            src="assets/img.webp"
             alt="Team collaborating in modern office" />
         </div>
         <div class="float-card fc-1">
@@ -2222,7 +2226,10 @@
       </div>
     </div>
   </section>
-  <div class="stats">
+
+  <!-- Stats Section (to be made live after the registrations) -->
+
+  <!-- <div class="stats">
     <div class="stats-grid">
       <div class="stat">
         <div class="stat-ico"><i class="fa-solid fa-users"></i></div>
@@ -2253,14 +2260,16 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
   <section class="about" id="about">
     <div class="container">
       <div class="about-grid">
         <div class="about-img reveal"><img
-            src="https://images.unsplash.com/photo-1664273891579-22f28332f3c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080&q=80"
+            src="https://images.unsplash.com/photo-1613870221528-f7a918522a4b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fEJ1aWxkJTIwU2tpbGxzJTIwV2hpbGUlMjBDcmVhdGluZyUyMEltcGFjdHxlbnwwfHwwfHx8MA%3D%3D"
             alt="Modern campus building" />
-          <div class="play"><i class="fa-solid fa-play"></i></div>
+
+            <!-- Play Button -->
+          <!-- <div class="play"><i class="fa-solid fa-play"></i></div> -->
         </div>
         <div class="reveal">
           <span class="eyebrow">About the Program</span>
@@ -2384,7 +2393,8 @@
         <div class="qr-block">
           <div class="qr-box">
             <div class="qr">
-              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <!-- http://www.w3.org/2000/svg -->
+              <svg viewBox="0 0 100 100" xmlns="assets/qr.png">
                 <rect width="100" height="100" fill="#fff" />
                 <g fill="#0b1f5b">
                   <rect x="6" y="6" width="22" height="22" />
@@ -2439,6 +2449,10 @@
           <div class="form-row">
             <div class="field"><label>Email Address</label><input required type="email" name="email"
                 placeholder="you@example.com" /></div>
+            <div class="field"><label>Enrollment No</label><input required name="enrollment"
+                placeholder="Your enrollment number" /></div>
+          </div>
+          <div class="form-row">
             <div class="field"><label>Department</label><select required name="dept">
                 <option value="">Choose</option>
                 <option>Engineering</option>
@@ -2447,6 +2461,8 @@
                 <option>Arts &amp; Science</option>
                 <option>Other</option>
               </select></div>
+            <div class="field"><label>Course</label><input required name="course"
+                placeholder="e.g. B.Tech, B.Pharm" /></div>
           </div>
           <div class="form-row">
             <div class="field"><label>Current Year</label><select required name="year">
