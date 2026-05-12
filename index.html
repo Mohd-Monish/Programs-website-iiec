@@ -2775,7 +2775,22 @@
     }
 
     // ── Status Modal Functions ──────────────────────────────────────────────────
-    function showStatusModal() {
+    var hasResume = false;
+
+    function setStepLabels(withResume) {
+      if (withResume) {
+        document.getElementById('step1-text').textContent = 'Submitting Response';
+        document.getElementById('step2-text').textContent = 'Uploading Resume';
+        document.getElementById('step3-text').textContent = 'Finalizing';
+      } else {
+        document.getElementById('step1-text').textContent = 'Analyzing the Data';
+        document.getElementById('step2-text').textContent = 'Storing Data';
+        document.getElementById('step3-text').textContent = 'Giving Final Touch';
+      }
+    }
+
+    function showStatusModal(withResume) {
+      hasResume = withResume || false;
       var modal = document.getElementById('statusModal');
       modal.style.display = 'block';
       document.body.style.overflow = 'hidden';
@@ -2786,8 +2801,12 @@
       document.getElementById('step1-status').style.color = '#0b1f5b';
       document.getElementById('step2-icon').style.background = '#e6e9f5';
       document.getElementById('step2-icon').style.color = '#5b6580';
+      document.getElementById('step2-icon').innerHTML = '2';
       document.getElementById('step3-icon').style.background = '#e6e9f5';
       document.getElementById('step3-icon').style.color = '#5b6580';
+      document.getElementById('step3-icon').innerHTML = '3';
+      // Set labels based on resume presence
+      setStepLabels(withResume);
     }
 
     function hideStatusModal() {
@@ -2825,6 +2844,13 @@
 
     function showSuccess() {
       document.getElementById('statusSuccess').style.display = 'block';
+      // Update success message based on resume presence
+      var successMsg = document.getElementById('statusSuccess').querySelector('p:last-child');
+      if (hasResume) {
+        successMsg.innerHTML = '✓ Data saved to our Database<br>✓ Resume uploaded to our Database';
+      } else {
+        successMsg.innerHTML = '✓ Data saved to our Database<br>✓ Application recorded successfully';
+      }
       // Hide progress steps
       document.querySelector('[style*="margin-bottom: 32px"]').style.display = 'none';
     }
@@ -2837,11 +2863,19 @@
       b.disabled = true;
 
       try {
-        // Show status modal
-        showStatusModal();
+        // Check if resume exists before showing modal
+        var resumeFile = document.getElementById('resume').files[0];
+        var withResume = !!resumeFile;
+
+        // Show status modal with resume info
+        showStatusModal(withResume);
 
         // ── STEP 1: Collect and Submit Response ──────────────────────────────────
-        updateStatus(1, 'Collecting form data...');
+        if (withResume) {
+          updateStatus(1, 'Collecting form data...');
+        } else {
+          updateStatus(1, 'Reading your information...');
+        }
 
         var formData = new FormData(this);
         var data = {
@@ -2857,8 +2891,12 @@
           referral: formData.get('referral')
         };
 
-        await new Promise(resolve => setTimeout(resolve, 800)); // Simulate brief processing
-        updateStatus(1, 'Validating data...');
+        await new Promise(resolve => setTimeout(resolve, 800));
+        if (withResume) {
+          updateStatus(1, 'Validating data...');
+        } else {
+          updateStatus(1, 'Checking data quality...');
+        }
 
         // ── Check if backend URL is configured ──────────────────────────────────
         if (!window.APPS_SCRIPT_URL || window.APPS_SCRIPT_URL === "NOT_CONFIGURED") {
@@ -2866,14 +2904,17 @@
         }
 
         await new Promise(resolve => setTimeout(resolve, 600));
-        updateStatus(1, 'Sending to server...');
+        if (withResume) {
+          updateStatus(1, 'Sending to server...');
+        } else {
+          updateStatus(1, 'Preparing submission...');
+        }
 
-        // ── STEP 2: Handle Resume File ───────────────────────────────────────────
+        // ── STEP 2: Handle Resume File or Data Processing ────────────────────────
         completeStep(1);
-        updateStatus(2, 'Preparing resume...');
 
-        var resumeFile = document.getElementById('resume').files[0];
-        if (resumeFile) {
+        if (withResume) {
+          updateStatus(2, 'Preparing resume...');
           await new Promise(resolve => setTimeout(resolve, 500));
           updateStatus(2, 'Encoding file...');
           data.resumeBase64 = await fileToBase64(resumeFile);
@@ -2881,14 +2922,22 @@
           data.resumeMime = resumeFile.type || "application/octet-stream";
           updateStatus(2, 'Resume ready...');
         } else {
-          updateStatus(2, 'No resume attached');
+          updateStatus(2, 'Processing information...');
+          await new Promise(resolve => setTimeout(resolve, 500));
+          updateStatus(2, 'Organizing details...');
+          await new Promise(resolve => setTimeout(resolve, 400));
+          updateStatus(2, 'Preparation complete...');
         }
 
         await new Promise(resolve => setTimeout(resolve, 600));
         completeStep(2);
 
         // ── STEP 3: Send to Backend and Finalize ────────────────────────────────
-        updateStatus(3, 'Processing submission...');
+        if (withResume) {
+          updateStatus(3, 'Processing submission...');
+        } else {
+          updateStatus(3, 'Securing data...');
+        }
 
         var response = await fetch(window.APPS_SCRIPT_URL, {
           method: 'POST',
@@ -2897,7 +2946,11 @@
         });
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-        updateStatus(3, 'Finalizing...');
+        if (withResume) {
+          updateStatus(3, 'Finalizing...');
+        } else {
+          updateStatus(3, 'Completing process...');
+        }
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         completeStep(3);
